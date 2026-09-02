@@ -270,6 +270,24 @@ RSpec.describe Jekyll::MarkdownOutput::MarkdownPage do
       expect(out).not_to include("<p>")
     end
 
+    it "adds the required space after the heading marker for details summaries" do
+      d = make_doc(
+        url: "/faq.html",
+        source_rel: "faq.html",
+        source_body: <<~HTML,
+          <details>
+            <summary>What if none of these plans fit my budget?</summary>
+            <p>Contact us.</p>
+          </details>
+        HTML
+      )
+      options = default_options.merge("html_to_markdown" => true)
+      out = described_class.new(site_double, d, options).to_s
+
+      expect(out).to include("# What if none of these plans fit my budget?\n\nContact us.")
+      expect(out).not_to include("#What if none of these plans fit my budget?")
+    end
+
     it "leaves HTML source unchanged when conversion is disabled" do
       d = make_doc(
         url: "/contact.html",
