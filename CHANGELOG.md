@@ -7,6 +7,8 @@
   by `jekyll-redirect-from`.
 - Expose `reverse_markdown` settings through `html_to_markdown_options`.
 - Add optional text output for `aria-label` values on SVG and `<i>` elements.
+- Fix invalid Markdown headings generated from `<details>` and `<summary>`
+  elements by adding the required space after the `#` marker.
 
 ## 0.1.1 - 2026-05-05
 
