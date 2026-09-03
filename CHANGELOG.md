@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - 2026-09-03
 
 - Add opt-in `html_to_markdown` conversion for `.html` and `.htm` source pages.
 - Skip generated pages that do not have a source file, including redirects made
@@ -9,6 +9,9 @@
 - Add optional text output for `aria-label` values on SVG and `<i>` elements.
 - Fix invalid Markdown headings generated from `<details>` and `<summary>`
   elements by adding the required space after the `#` marker.
+- Keep `<details>` content on one line inside table cells, omit inert
+  `<template>` content, and support `data-markdown-output="exclude"` for
+  HTML-only elements.
 
 ## 0.1.1 - 2026-05-05
 

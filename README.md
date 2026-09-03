@@ -84,6 +84,12 @@ heading are added. It does not convert the rendered layout, so theme chrome is
 not pulled into the Markdown output. Conversion is necessarily lossy for HTML
 that has no Markdown equivalent.
 
+Inert `<template>` content is omitted. Add
+`data-markdown-output="exclude"` to source elements that should remain in the
+HTML page but be omitted from its Markdown representation, such as duplicated
+responsive markup. Details nested inside table cells are flattened so they do
+not break GitHub-flavored Markdown tables.
+
 The `html_to_markdown_options` map is passed to `reverse_markdown`. To remove
 unsupported HTML tags while retaining and converting their contents, use:
 
