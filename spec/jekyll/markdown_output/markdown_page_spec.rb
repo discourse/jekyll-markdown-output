@@ -288,6 +288,52 @@ RSpec.describe Jekyll::MarkdownOutput::MarkdownPage do
       expect(out).not_to include("#What if none of these plans fit my budget?")
     end
 
+    it "keeps details content on one line inside table cells" do
+      d = make_doc(
+        url: "/pricing.html",
+        source_rel: "pricing.html",
+        source_body: <<~HTML,
+          <table>
+            <thead><tr><th>Feature</th><th>Pro</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>
+                  <details>
+                    <summary>Storage</summary>
+                    <p>Uploads and <a href="/files">files</a></p>
+                  </details>
+                </td>
+                <td>20GB</td>
+              </tr>
+            </tbody>
+          </table>
+        HTML
+      )
+      options = default_options.merge("html_to_markdown" => true)
+      out = described_class.new(site_double, d, options).to_s
+
+      expect(out).to include("| **Storage** — Uploads and [files](/files) | 20GB |")
+      expect(out).not_to include("| # Storage")
+    end
+
+    it "removes inert templates and explicitly excluded elements" do
+      d = make_doc(
+        url: "/pricing.html",
+        source_rel: "pricing.html",
+        source_body: <<~HTML,
+          <p>Visible content</p>
+          <template>Tooltip content</template>
+          <p data-markdown-output="exclude">Responsive duplicate</p>
+        HTML
+      )
+      options = default_options.merge("html_to_markdown" => true)
+      out = described_class.new(site_double, d, options).to_s
+
+      expect(out).to include("Visible content")
+      expect(out).not_to include("Tooltip content")
+      expect(out).not_to include("Responsive duplicate")
+    end
+
     it "leaves HTML source unchanged when conversion is disabled" do
       d = make_doc(
         url: "/contact.html",

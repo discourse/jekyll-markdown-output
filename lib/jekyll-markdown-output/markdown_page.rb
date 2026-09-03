@@ -147,11 +147,21 @@ module Jekyll
         body = rendered_source
         return body unless @options["html_to_markdown"] && html_source?
 
-        body = expose_icon_aria_labels(body) if @options["include_aria_labels"]
+        body = prepare_html_for_conversion(body)
 
         # Preserve the source's inline spacing instead of adding a space at
         # every tag boundary (for example, before punctuation after </strong>).
         ReverseMarkdown.convert(body, html_to_markdown_options)
+      end
+
+      def prepare_html_for_conversion(body)
+        fragment = Nokogiri::HTML::DocumentFragment.parse(body)
+
+        fragment.css("template, [data-markdown-output='exclude']").remove
+        expose_icon_aria_labels(fragment) if @options["include_aria_labels"]
+        flatten_table_details(fragment)
+
+        fragment.to_html
       end
 
       def html_source?
@@ -168,15 +178,25 @@ module Jekyll
       # Replace labeled SVG and <i> icons with their accessible names while
       # leaving surrounding elements (such as links and buttons) available to
       # the normal conversion pipeline.
-      def expose_icon_aria_labels(body)
-        fragment = Nokogiri::HTML::DocumentFragment.parse(body)
+      def expose_icon_aria_labels(fragment)
         fragment.css("svg[aria-label], i[aria-label]").each do |icon|
           label = icon["aria-label"].to_s.strip
           next if label.empty?
 
           icon.replace(Nokogiri::XML::Text.new(label, fragment.document))
         end
-        fragment.to_html
+      end
+
+      def flatten_table_details(fragment)
+        fragment.css("td details, th details").each do |details|
+          summary = details.at_xpath("./summary")
+          next unless summary
+
+          summary.name = "strong"
+          summary.add_next_sibling(Nokogiri::XML::Text.new(" — ", fragment.document))
+          details.xpath("./p").each { |paragraph| paragraph.name = "span" }
+          details.name = "span"
+        end
       end
     end
   end
